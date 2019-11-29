@@ -6,7 +6,7 @@
   <i>Use Gratin. Start migratin'.</i>
 </p>
 <p align="center">
-  <a href="https://www.npmjs.com/package/gratin" target="_blank">
+  <a href="https://www.npmjs.com/package/gratin">
     <img src="https://img.shields.io/npm/v/gratin?label=npm%20i%20--save%20gratin&style=flat-square" />
   </a>
   <br />
