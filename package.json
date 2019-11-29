@@ -1,0 +1,33 @@
+{
+  "name": "gratin",
+  "version": "0.0.0-alpha1",
+  "description": "Use gratin start migratin'",
+  "main": "lib/main.js",
+  "types": "lib/main.d.ts",
+  "files": [
+    "lib/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "example": "npm run build && cd example && ts-node main.ts",
+    "test": "echo \"No test specified\" && exit 0",
+    "build": "tsc -p .",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirikon/gratin.git"
+  },
+  "author": "Carlos Fdez. Llamas <hello@sirikon.me>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/sirikon/gratin/issues"
+  },
+  "homepage": "https://github.com/sirikon/gratin#readme",
+  "devDependencies": {
+    "ts-node": "^8.5.4",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2"
+  }
+}
