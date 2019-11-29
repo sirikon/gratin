@@ -1,6 +1,6 @@
 <h1 align="center">Gratin</h1>
 <p align="center">
-  <img src="./assets/lasagna.png" width="500px">
+  <img src="https://raw.githubusercontent.com/sirikon/gratin/master/assets/lasagna.png" width="500px">
 </p>
 <p align="center">
   <i>Use Gratin. Start migratin'.</i>
