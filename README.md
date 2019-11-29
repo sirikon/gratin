@@ -5,6 +5,17 @@
 <p align="center">
   <i>Use Gratin. Start migratin'.</i>
 </p>
+<p align="center">
+  <img src="https://img.shields.io/npm/v/gratin?label=npm%20i%20--save%20gratin&style=flat-square" /><br />
+  <img src="https://img.shields.io/maintenance/yes/2019?style=flat-square" />
+  <img src="https://img.shields.io/badge/tasty-of%20course-brightgreen?style=flat-square" />
+</p>
+
+## Installation
+
+```bash
+npm i --save gratin
+```
 
 ## WIP
 
