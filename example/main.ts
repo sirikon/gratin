@@ -1,16 +1,23 @@
 import * as pathUtils from 'path';
 
-import { Gratin } from '..';
+import { Gratin, Postgres } from '..';
 
-const gratin = new Gratin({
-	migrationsFolder: pathUtils.join(__dirname, 'migrations'),
-	database: {
-		address: 'localhost',
-		port: '5432',
-		username: 'postgres',
-		password: '12345',
-		schema: 'postgres',
-	},
-});
+async function main() {
+	const gratin = new Gratin({
+		migrationsFolder: pathUtils.join(__dirname, 'migrations'),
+		database: new Postgres({
+			host: '127.0.0.1',
+			port: 5432,
+			database: 'postgres',
+			username: 'postgres',
+			password: '12345',
+		}),
+	});
 
-gratin.run();
+	await gratin.run();
+}
+
+main().then(
+	() => { /**/ },
+	// tslint:disable-next-line: no-console
+	(err) => console.log(err));
