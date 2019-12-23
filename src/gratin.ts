@@ -3,9 +3,8 @@ import * as pathUtils from 'path';
 
 import * as c from 'ansi-colors';
 
-import { IChangelogItem, IDatabase, IMigration } from './models';
-
 import logger from './cli/logger';
+import { IChangelogItem, IDatabase, IMigration } from './models';
 
 export interface IGratinConfiguration {
 	migrationsFolder: string;
@@ -17,7 +16,12 @@ export class Gratin {
 	constructor(
 		private configuration: IGratinConfiguration) { }
 
-	public async run() {
+	public run() {
+		this.execute()
+			.then(() => { /**/ }, (err) => logger.log(err));
+	}
+
+	public async execute() {
 		try {
 			await this.logStart();
 			await this.usingDatabase(async () => {
@@ -43,10 +47,13 @@ export class Gratin {
 		for (const migration of pendingMigrations) {
 			await this.applyMigration(migration);
 		}
+		if (pendingMigrations.length > 0) {
+			logger.newLine();
+		}
 	}
 
 	private async applyMigration(migration: IMigration) {
-		await runAction(`Applying migration '${migration.key}'`, async () => {
+		await logger.action(`Applying migration '${migration.key}'`, async () => {
 			const content = await readFileContent(migration.absolutePath);
 			await this.configuration.database.transaction(async () => {
 				await this.configuration.database.execute(content);
@@ -104,13 +111,13 @@ export class Gratin {
 	}
 
 	private async connectDatabase(): Promise<void> {
-		await runAction('Connecting to the database', async () => {
+		await logger.action('Connecting to the database', async () => {
 			await this.configuration.database.connect();
 		});
 	}
 
 	private async disconnectDatabase(): Promise<void> {
-		await runAction('Disconnecting from the database', async () => {
+		await logger.action('Disconnecting from the database', async () => {
 			await this.configuration.database.disconnect();
 		});
 	}
@@ -120,13 +127,13 @@ export class Gratin {
 	}
 
 	private async ensureChangelogExists(): Promise<void> {
-		await runAction('Ensuring changelog exists', async () => {
+		await logger.action('Ensuring changelog exists', async () => {
 			await this.configuration.database.ensureChangelog();
 		});
 	}
 
 	private async getChangelog(): Promise<IChangelogItem[]> {
-		return await runAction('Getting changelog', async () => {
+		return await logger.action('Getting changelog', async () => {
 			return await this.configuration.database.getChangelog();
 		});
 	}
@@ -165,16 +172,4 @@ function readFileContent(path: string): Promise<string> {
 			resolve(data);
 		});
 	});
-}
-
-async function runAction<T>(name: string, cb: () => Promise<T>): Promise<T> {
-	process.stdout.write(`${name}... `);
-	try {
-		const result = await cb();
-		process.stdout.write(`${c.green('OK')}\n`);
-		return result;
-	} catch (err) {
-		process.stdout.write(`${c.red('ERROR')}\n`);
-		throw err;
-	}
 }
