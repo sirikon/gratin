@@ -28,14 +28,14 @@
   },
   "homepage": "https://github.com/sirikon/gratin#readme",
   "devDependencies": {
-    "@types/node": "^12.12.14",
-    "@types/pg": "^7.11.2",
-    "pg": "^7.14.0",
-    "ts-node": "^8.5.4",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.2"
+    "@types/node": "^12.12.21",
+    "@types/pg": "~7.11.2",
+    "pg": "~7.15.0",
+    "ts-node": "~8.5.4",
+    "tslint": "~5.20.1",
+    "typescript": "^3.7.4"
   },
   "dependencies": {
-    "ansi-colors": "^4.1.1"
+    "ansi-colors": "~4.1.1"
   }
 }
