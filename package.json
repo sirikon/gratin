@@ -1,6 +1,6 @@
 {
   "name": "gratin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Use gratin start migratin'",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
@@ -30,12 +30,12 @@
   "devDependencies": {
     "@types/node": "^12.12.21",
     "@types/pg": "~7.11.2",
-    "pg": "~7.15.0",
     "ts-node": "~8.5.4",
     "tslint": "~5.20.1",
     "typescript": "^3.7.4"
   },
   "dependencies": {
+    "pg": "~7.15.0",
     "ansi-colors": "~4.1.1"
   }
 }
