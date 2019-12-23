@@ -1,9 +1,9 @@
-import * as pathUtils from 'path';
+import { join } from 'path';
 
 import { Gratin, Postgres } from '..';
 
 const gratin = new Gratin({
-	migrationsFolder: pathUtils.join(__dirname, 'migrations'),
+	migrationsFolder: join(__dirname, 'migrations'),
 	database: new Postgres({
 		host: '127.0.0.1',
 		port: 5432,
