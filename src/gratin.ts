@@ -16,12 +16,7 @@ export class Gratin {
 	constructor(
 		private configuration: IGratinConfiguration) { }
 
-	public run() {
-		this.execute()
-			.then(() => { /**/ }, (err) => logger.log(err));
-	}
-
-	public async execute() {
+	public async run() {
 		try {
 			await this.logStart();
 			await this.usingDatabase(async () => {

@@ -14,6 +14,17 @@
   <img src="https://img.shields.io/badge/tasty-of%20course-brightgreen?style=flat-square" />
 </p>
 
+## What
+
+Gratin is a **very** simple database migration tool that will:
+
+- Read all the files from a given folder, assuming each of them is a valid
+script for your target database.
+- Connect to a given database
+- Apply each file in a transaction
+- Keep track of each applied migration in the database itself, creating the
+table `gratin_changelog`.
+
 ## Installation
 
 ```bash
@@ -47,6 +58,19 @@ This will find every file inside `./migrations` folder (relative to the script
 itself) and apply each of them to the database in separate transactions,
 creating a changelog in the database to keep track of all the applied
 migrations.
+
+And, because it's just code, you can do whatever you want to get the proper
+database credentials, do some tasks before or after migrating, etc.
+
+Now all you have to do is run it with something like
+[ts-node](https://github.com/TypeStrong/ts-node) or compile it with Typescript
+`tsc`.
+
+## Database support
+
+Currently, only PostgreSQL. But you could create a new implementation of
+`IDatabase` on your own and use it. The PostgreSQL implementation is included
+in the package as a commodity.
 
 ## Credits
 
