@@ -1,6 +1,6 @@
 {
   "name": "gratin",
-  "version": "0.0.0-alpha1",
+  "version": "0.1.0",
   "description": "Use gratin start migratin'",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
