@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as pathUtils from 'path';
+
+import * as c from 'ansi-colors';
+
 import { IChangelogItem, IDatabase, IMigration } from './models';
 
 import logger from './cli/logger';
@@ -15,15 +18,22 @@ export class Gratin {
 		private configuration: IGratinConfiguration) { }
 
 	public async run() {
-		await this.logStart();
-		await this.connectDatabase();
-		await this.ensureChangelogExists();
-		await this.applyPendingMigrations();
-		await this.disconnectDatabase();
+		try {
+			await this.logStart();
+			await this.usingDatabase(async () => {
+				await this.ensureChangelogExists();
+				await this.applyPendingMigrations();
+			});
+		} catch (err) {
+			logger.newLine();
+			logger.log('Execution finished with an unexpected error:');
+			logger.error(err);
+		}
 	}
 
 	private async logStart(): Promise<void> {
-		logger.log(`Starting Gratin ${await getVersion()}`);
+		const softwareName = c.bold(`Gratin ${await getVersion()}`);
+		logger.log(`Starting ${softwareName} 🧀🔥`);
 		logger.newLine();
 	}
 
@@ -36,17 +46,18 @@ export class Gratin {
 	}
 
 	private async applyMigration(migration: IMigration) {
-		logger.log(`Applying migration '${migration.key}'`);
-		const content = await readFileContent(migration.absolutePath);
-		await this.configuration.database.transaction(async () => {
-			await this.configuration.database.execute(content);
-			await this.configuration.database.insertChangelogItem(migration.key);
+		await runAction(`Applying migration '${migration.key}'`, async () => {
+			const content = await readFileContent(migration.absolutePath);
+			await this.configuration.database.transaction(async () => {
+				await this.configuration.database.execute(content);
+				await this.configuration.database.insertChangelogItem(migration.key);
+			});
 		});
 	}
 
 	private async getPendingMigrations(): Promise<IMigration[]> {
-		const migrationsFiles = await this.getMigrationsFiles();
 		const changelog = await this.getChangelog();
+		const migrationsFiles = await this.getMigrationsFiles();
 
 		return migrationsFiles.filter((m) => {
 			let found = false;
@@ -79,18 +90,29 @@ export class Gratin {
 		});
 	}
 
+	private async usingDatabase(cb: () => Promise<void>) {
+		let connected = false;
+		try {
+			await this.connectDatabase();
+			connected = true;
+			await cb();
+		} finally {
+			if (connected) {
+				await this.disconnectDatabase();
+			}
+		}
+	}
+
 	private async connectDatabase(): Promise<void> {
-		logger.log('Connecting to the database...');
-		await this.configuration.database.connect();
-		logger.log('Connection with database successful');
-		logger.newLine();
+		await runAction('Connecting to the database', async () => {
+			await this.configuration.database.connect();
+		});
 	}
 
 	private async disconnectDatabase(): Promise<void> {
-		logger.log('Disconnecting from the database...');
-		await this.configuration.database.disconnect();
-		logger.log('Successfully disconnected');
-		logger.newLine();
+		await runAction('Disconnecting from the database', async () => {
+			await this.configuration.database.disconnect();
+		});
 	}
 
 	private getMigrationsFolder(): string {
@@ -98,18 +120,15 @@ export class Gratin {
 	}
 
 	private async ensureChangelogExists(): Promise<void> {
-		logger.log('Ensuring changelog exists...');
-		await this.configuration.database.ensureChangelog();
-		logger.log('Changelog ensured');
-		logger.newLine();
+		await runAction('Ensuring changelog exists', async () => {
+			await this.configuration.database.ensureChangelog();
+		});
 	}
 
 	private async getChangelog(): Promise<IChangelogItem[]> {
-		logger.log('Getting changelog...');
-		const result = await this.configuration.database.getChangelog();
-		logger.log('OK');
-		logger.newLine();
-		return result;
+		return await runAction('Getting changelog', async () => {
+			return await this.configuration.database.getChangelog();
+		});
 	}
 
 }
@@ -121,6 +140,7 @@ function printPendingMigrations(migrations: IMigration[]) {
 }
 
 function printFoundMigrations(migrations: IMigration[]) {
+	logger.newLine();
 	logger.log(`Found ${migrations.length} migration${migrations.length > 1 ? 's' : ''}`);
 	printMigrations(migrations);
 	logger.newLine();
@@ -145,4 +165,16 @@ function readFileContent(path: string): Promise<string> {
 			resolve(data);
 		});
 	});
+}
+
+async function runAction<T>(name: string, cb: () => Promise<T>): Promise<T> {
+	process.stdout.write(`${name}... `);
+	try {
+		const result = await cb();
+		process.stdout.write(`${c.green('OK')}\n`);
+		return result;
+	} catch (err) {
+		process.stdout.write(`${c.red('ERROR')}\n`);
+		throw err;
+	}
 }
