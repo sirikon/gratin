@@ -1,6 +1,6 @@
 import { Client } from 'pg';
 
-import { IDatabase } from '../models';
+import { IChangelogItem, IDatabase } from '../models';
 
 export interface IPostgresConfig {
 	host: string;
@@ -33,8 +33,8 @@ export class Postgres implements IDatabase {
 		await this.dbClient.end();
 	}
 
-	public async query(text: string): Promise<void> {
-		await this.dbClient.query(text);
+	public async execute(statement: string): Promise<void> {
+		await this.dbClient.query(statement);
 	}
 
 	public async transaction(cb: () => Promise<void>): Promise<void> {
@@ -46,6 +46,35 @@ export class Postgres implements IDatabase {
 			await this.dbClient.query('ROLLBACK');
 			throw err;
 		}
+	}
+
+	public async ensureChangelog(): Promise<void> {
+		await this.dbClient.query(`
+			CREATE TABLE IF NOT EXISTS gratin_changelog (
+				id SERIAL,
+				migration_key VARCHAR(200) UNIQUE NOT NULL,
+				date TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP
+			)
+		`);
+	}
+
+	public async getChangelog(): Promise<IChangelogItem[]> {
+		const result = await this.dbClient.query(`
+			SELECT * FROM gratin_changelog ORDER BY id;
+		`);
+		return result.rows.map((row) => {
+			return {
+				id: row.id,
+				migrationKey: row.migration_key,
+				date: row.date,
+			};
+		});
+	}
+
+	public async insertChangelogItem(key: string): Promise<void> {
+		await this.dbClient.query(`
+			INSERT INTO gratin_changelog (migration_key) VALUES ($1::text)
+		`, [key]);
 	}
 
 }
