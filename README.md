@@ -39,7 +39,7 @@ migrations tool:
 ```typescript
 import { join } from 'path';
 
-import { Gratin, Postgres } from '..';
+import { Gratin, Postgres } from 'gratin';
 
 const gratin = new Gratin({
 	migrationsFolder: join(__dirname, 'migrations'),
